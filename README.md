@@ -1,32 +1,112 @@
-# 🛡️ PhishTriage Engine: Automated SOC Artifact & Quishing Triage Pipeline
+<div align="center">
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![SOC-Automation](https://img.shields.io/badge/SOC-Tier--1%20Automation-red.svg)]()
+# 🛡️ PhishTriage Engine
+### Automated SOC Artifact & Quishing Triage Pipeline
 
-**PhishTriage Engine** is an end-to-end artifact triage tool designed to accelerate Tier-1 Security Operations Center (SOC) incident response. It automates email header auditing, multi-format file ingestion (`.eml`, `.pdf`, `.txt`), computer-vision QR Code phishing (**Quishing**) extraction, dynamic indicator defanging, real-time threat intelligence enrichment, and structured incident reporting.
+[![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)]([https://www.python.org/](https://www.python.org/))
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![SOC-Automation](https://img.shields.io/badge/SOC-Tier--1%20Automation-red?style=for-the-badge)](https://github.com/kali878/phish-triage-engine)
+[![Threat-Intel](https://img.shields.io/badge/Threat%20Intel-VirusTotal%20%7C%20AbuseIPDB-orange?style=for-the-badge)](https://www.virustotal.com/)
+
+<p align="center">
+  <b>A production-grade Tier-1 SOC automation tool designed to extract deep email forensics, detect hidden Quishing (QR code) payloads via Computer Vision, defang dangerous IOCs, enrich artifacts with live Threat Intelligence, and generate actionable incident triage reports.</b>
+</p>
+
+</div>
 
 ---
 
-## ⚡ Problem Statement & Solution
+## 📌 Executive Summary
 
-* **The Problem:** Tier-1 SOC analysts spend 10–15 minutes per phishing ticket manually inspecting headers, decoding obscure authentication results, scanning attachment hashes, and safely analyzing QR-code lures. This causes severe alert fatigue and delays MTTR (Mean Time to Respond).
-* **The Solution:** This engine automates the entire ingestion-to-triage lifecycle, extracting all actionable indicators in under 10 seconds, scoring threats dynamically on a **0–100 weighted matrix**, and exporting a standardized Markdown SOC case report.
+Tier-1 SOC analysts routinely spend **10–15 minutes per phishing ticket** manually decoding email headers, verifying SPF/DKIM/DMARC records, checking attachment hashes, and analyzing risky QR codes. This leads to **alert fatigue** and significantly inflates **Mean Time to Respond (MTTR)**.
+
+**PhishTriage Engine** solves this operational bottleneck by automating the entire triage lifecycle:
+* ⚡ **Zero-Execution Analysis:** Decodes Quishing lures directly from raw byte streams using computer vision without sandbox overhead.
+* ⚡ **Multi-Format Ingestion:** Seamlessly parses raw `.eml`, `.pdf`, and `.txt` logs.
+* ⚡ **Dynamic 0–100 Risk Engine:** Computes threat scores across email authentication, threat intel feeds, and malicious heuristics in under **10 seconds**.
 
 ---
 
 ## 🚀 Key Features
 
-* 📷 **Quishing (QR Code Phishing) Extraction:** Uses computer vision (`pyzbar` & `Pillow`) to extract embedded malicious URLs directly from raw image attachments and embedded PDF graphics without risky sandbox rendering.
-* 📄 **Multi-Format Ingestion Engine:** Supports native parsing for `.eml`, `.msg`, `.pdf` documents (text + images), and raw `.txt`/`.log` unstructured files.
-* ✉️ **Email Header & Authentication Auditing:** Parses SPF, DKIM, and DMARC verdicts from `Authentication-Results` / `Received-SPF` headers to instantly flag domain spoofing.
-* 🌐 **Originating IP Relay Tracing:** Walks reverse SMTP `Received:` headers to isolate the external gateway IP while discarding RFC-1918 internal/private subnets.
-* 🔍 **Multi-Source Threat Intelligence:**
-  * **AbuseIPDB API:** Fetches Abuse Confidence Scores, total reports, country, and ISP data.
-  * **VirusTotal API (v3):** Checks real-time detection ratios for URLs, QR payloads, and SHA-256 attachment hashes.
-* 🛡️ **Automated IOC Defanging:** Sanitizes URLs and IPs (`hxxps://evil[.]com`, `185.220.101[.]5`) across outputs to prevent accidental analyst execution.
-* 📋 **Dynamic Risk Scoring & SOC Markdown Playbooks:** Outputs comprehensive investigation reports with severity classification and remediation playbooks (e.g., Mailbox Purge, IP/URL perimeter blocking).
+| Feature | Description |
+|---|---|
+| **📷 Quishing Extraction** | Leverages Computer Vision (`pyzbar` + `Pillow`) to decode hidden QR codes inside image attachments (`.png`, `.jpg`) and PDF graphics. |
+| **📄 Multi-Format Ingestion** | Natively handles `.eml`, `.msg`, multi-page `.pdf` documents, and unstructured `.txt`/`.log` files. |
+| **✉️ Authentication Auditing** | Automatically validates `SPF`, `DKIM`, and `DMARC` records from `Authentication-Results` to catch spoofing attempts. |
+| **🌐 Originating IP Tracing** | Recursively traverses SMTP `Received:` headers to pinpoint the real external gateway IP while discarding RFC-1918 subnets. |
+| **🔍 Live Threat Intel** | Integrates with **AbuseIPDB v2** (IP reputation) and **VirusTotal v3** (URLs, QR payloads, and SHA-256 file hashes). |
+| **🛡️ Automated IOC Defanging** | Automatically sanitizes malicious indicators (`hxxps://`, `[.]`) across all terminal feeds and export reports. |
+| **📋 Actionable SOC Reports** | Generates detailed Markdown investigation reports with recommended containment steps (Mailbox purge, firewall blocks). |
 
 ---
 
-## 🏗️ Architecture & Data Flow
+## 🧰 Tech Stack
+
+| Domain | Tools & Libraries |
+|---|---|
+| **Language** | Python 3.9+ |
+| **Computer Vision** | `pyzbar`, `Pillow` (PIL) |
+| **Parsing & Forensics** | `BeautifulSoup4`, `dnspython`, `pypdf` |
+| **Threat Intelligence** | VirusTotal REST API v3, AbuseIPDB REST API v2 |
+| **Automation & CLI** | `argparse`, `requests`, `qrcode` |
+
+---
+
+## 📂 Directory Structure
+
+```text
+phish-triage-engine/
+├── core/
+│   ├── __init__.py           # Package marker
+│   ├── email_parser.py       # Header analysis, SPF/DKIM verification & defanging
+│   ├── generic_parser.py     # PDF & unstructured log file extraction
+│   ├── intel_enricher.py     # Threat intel API wrappers (VT & AbuseIPDB)
+│   ├── quishing_parser.py    # Computer-vision QR code extractor
+│   └── risk_scorer.py        # Scoring logic & SOC report builder
+├── output/                   # Generated investigation reports (.md)
+├── samples/                  # Mock/Sample test cases
+├── .gitignore                # Git exclusions
+├── config.example.py         # Config template for API keys
+├── config.py                 # Active credentials (Ignored by git)
+├── generate_test_sample.py   # Quishing attack generator for testing
+├── main.py                   # Main CLI Entry Point
+├── README.md                 # Project Documentation
+└── requirements.txt          # Python Dependencies
+```
+
+---
+
+## ⚙️ Getting Started
+
+1. Create and activate a virtual environment.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Rename `config.example.py` to `config.py` and add your API keys.
+4. Run `python main.py samples/test_quishing.eml`
+5. Review the generated report in the `output/` folder.
+
+---
+
+## 🔐 Configuration
+
+Add your API credentials in `config.py`:
+
+```python
+ABUSEIPDB_API_KEY = "YOUR_ABUSEIPDB_API_KEY"
+VIRUSTOTAL_API_KEY = "YOUR_VIRUSTOTAL_API_KEY"
+```
+
+---
+
+## 🧪 Example Usage
+
+```bash
+python generate_test_sample.py
+python main.py samples/test_quishing.eml -o output
+```
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
