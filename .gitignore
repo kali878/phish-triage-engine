@@ -1,0 +1,19 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+core/__pycache__/
+
+# Sensitive Configurations
+config.py
+
+# Local Generated Data & Samples
+output/
+samples/
+*.eml
+*.pdf
+*.png
